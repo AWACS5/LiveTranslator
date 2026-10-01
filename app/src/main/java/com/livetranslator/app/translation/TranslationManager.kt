@@ -1,14 +1,12 @@
 package com.livetranslator.app.translation
 
 import android.content.Context
+import com.google.android.gms.tasks.Tasks
 import com.google.mlkit.nl.translate.TranslateLanguage
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.TranslatorOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCancellableCoroutine
 
 enum class LanguagePair(val code: String, val displayName: String, val sourceLang: String, val targetLang: String) {
     ENGLISH_TO_GERMAN("en_de", "Engleski ➔ Njemački", TranslateLanguage.ENGLISH, TranslateLanguage.GERMAN),
@@ -40,21 +38,12 @@ class TranslationManager(private val context: Context) {
                 .build()
 
             val translator = Translation.getClient(options)
-            
-            suspendCancellableCoroutine { continuation ->
-                translator.downloadModelIfNeeded()
-                    .addOnSuccessListener { continuation.resume(Unit) }
-                    .addOnFailureListener { continuation.resumeWithException(it) }
-            }
 
-            val translated = suspendCancellableCoroutine<String> { continuation ->
-                translator.translate(text)
-                    .addOnSuccessListener { continuation.resume(it) }
-                    .addOnFailureListener { continuation.resumeWithException(it) }
-            }
+            Tasks.await(translator.downloadModelIfNeeded())
+            val result = Tasks.await(translator.translate(text))
 
             translator.close()
-            translated
+            result
         } catch (e: Exception) {
             "[Prijevod (${currentLanguagePair.displayName})]: $text"
         }

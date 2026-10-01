@@ -20,9 +20,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -58,7 +58,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-ComposableMainScreen(
+fun ComposableMainScreen(
     translationManager: TranslationManager,
     isServiceRunning: Boolean,
     onStartServiceClicked: () -> Unit,
@@ -66,7 +66,7 @@ ComposableMainScreen(
     onRequestOverlayPermissionClicked: () -> Unit,
     hasOverlayPermission: Boolean
 ) {
-    val context = LocalContext.getContext()
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     var selectedPair by remember { mutableStateOf(translationManager.getLanguagePair()) }
@@ -106,7 +106,7 @@ ComposableMainScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Translate,
+                        imageVector = Icons.Default.Info,
                         contentDescription = null,
                         tint = if (isServiceRunning) Color(0xFF2E7D32) else Color(0xFFC62828)
                     )
@@ -144,7 +144,7 @@ ComposableMainScreen(
                     expanded = dropdownExpanded,
                     onDismissRequest = { dropdownExpanded = false }
                 ) {
-                    LanguagePair.values().forEach { pair ->
+                    LanguagePair.entries.forEach { pair ->
                         DropdownMenuItem(
                             text = { Text(pair.displayName) },
                             onClick = {
